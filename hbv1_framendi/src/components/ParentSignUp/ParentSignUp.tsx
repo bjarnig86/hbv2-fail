@@ -33,7 +33,7 @@ export const ParentSignUp = () => {
       body: JSON.stringify(rest),
     };
 
-    const register = await fetch(`/api/createparent`, options);
+    const register = await fetch(`${link}/api/createparent`, options);
 
     console.log('refister -> ', register);
 

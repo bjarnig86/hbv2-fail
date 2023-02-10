@@ -32,8 +32,10 @@ export const initialState: AuthState = {
   error: { message: 'An Error occurred' },
 };
 
+const link = 'http://localhost:8080'
+
 export const fetchUser = createAsyncThunk('users/fetchUser', async () => {
-  const response = await fetch('/api/isauthenticated', {
+  const response = await fetch(link + '/api/isauthenticated', {
     method: 'GET',
     headers: {
       Accept: 'application/json',

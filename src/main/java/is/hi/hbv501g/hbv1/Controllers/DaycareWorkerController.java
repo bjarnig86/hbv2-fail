@@ -139,22 +139,40 @@ public class DaycareWorkerController {
             throws IOException {
         RestTemplate restTemplate = new RestTemplate();
 
+        String bodyForTokenCall = "grant_type=client_credentials" +
+                "&client_id=lnItWvExMuRghIaYbN8dRUj7wfiSIjvU" +
+                "&client_secret=eoJjUmSMCOo4d5CVh4eLs33nanTNqlXwwwx3XWDUPK29odhT0DJH-b6gaHjE3mHR" +
+                "&audience=https://dev-xzuj3qsd.eu.auth0.com/api/v2/";
+
+        HttpHeaders tokenHeaders = new HttpHeaders();
+        tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<String> tokenEntity = new HttpEntity<>(bodyForTokenCall, tokenHeaders);
+        JSONObject newToken;
+        try {
+            newToken = restTemplate.postForObject("https://dev-xzuj3qsd.eu.auth0.com/oauth/token", tokenEntity, JSONObject.class);
+//            System.out.println("NEW TOKEN!!" + newToken);
+        } catch (Exception e) {
+//            System.out.println("HALLÓ TOKEN FAIL!! \n" + e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(token);
+        headers.setBearerAuth(newToken.getAsString("access_token"));
 
         // Signup logic for auth0
         JSONObject json = new JSONObject();
         json.put("email", daycareWorkerDTO.getEmail());
         json.put("password", daycareWorkerDTO.getPassword());
-        json.put("client_id", clientId);
+//        json.put("client_id", clientId);
         json.put("connection", "Username-Password-Authentication");
 
         HttpEntity<String> entity = new HttpEntity<>(json.toString(), headers);
 
         String result = "";
         try {
-            result = restTemplate.postForObject("https://dev-xzuj3qsd.eu.auth0.com/dbconnections/signup", entity,
+            result = restTemplate.postForObject("https://dev-xzuj3qsd.eu.auth0.com/api/v2/users", entity,
                     String.class);
         } catch (HttpClientErrorException err) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -163,8 +181,7 @@ public class DaycareWorkerController {
         JsonNode root = objectMapper.readTree(result);
 
         String email = root.path("email").asText();
-        String id = root.path("_id").asText();
-        System.out.println(id + " : " + email);
+        String id = root.path("user_id").asText();
 
         // Here we assign the role DCW to the new account on auth0.
         // This has to be done after the user is created.
@@ -176,7 +193,7 @@ public class DaycareWorkerController {
         HttpEntity<String> roleEntity = new HttpEntity<>(roleJson.toString(), headers);
 
         try {
-            restTemplate.postForObject("https://dev-xzuj3qsd.eu.auth0.com/api/v2/users/auth0|" + id + "/roles",
+            restTemplate.postForObject("https://dev-xzuj3qsd.eu.auth0.com/api/v2/users/" + id + "/roles",
                     roleEntity, String.class);
         } catch (HttpClientErrorException err) {
             System.out.println(err);

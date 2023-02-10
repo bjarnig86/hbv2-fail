@@ -31,6 +31,9 @@ public class DaycareWorkerDTO {
         this.password = password;
     }
 
+    public DaycareWorkerDTO() {
+    }
+
     public String getROLE() {
         return ROLE;
     }

@@ -74,6 +74,7 @@ public class DaycareWorker {
         this.address = address;
         this.location = location;
         this.locationCode = locationCode;
+        this.email = email;
     }
 
     public String getAuth0Id() {
@@ -220,5 +221,9 @@ public class DaycareWorker {
     public void removeChildFromList(Child child) {
         this.childrenCount--;
         this.children.remove(child);
+    }
+
+    public Object getPassword() {
+        return "password";
     }
 }

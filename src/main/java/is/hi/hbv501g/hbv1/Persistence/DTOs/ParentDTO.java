@@ -22,6 +22,9 @@ public class ParentDTO {
         this.password = password;
     }
 
+    public ParentDTO() {
+    }
+
     public String getROLE() {
         return ROLE;
     }
